@@ -870,6 +870,12 @@ jobs:
         if: github.event_name != 'workflow_dispatch' || contains(fromJSON('["all","services-only"]'), inputs.packages)
         run: uv run hosting/kubernetes/helm/tests/test_runner_secret_absence.py
 
+      # The API binds each turn to one runner pod and sends its Stop to that pod, so every pod
+      # needs its own id and its pod address at any replica count.
+      - name: Assert each runner pod renders its own id and address
+        if: github.event_name != 'workflow_dispatch' || contains(fromJSON('["all","services-only"]'), inputs.packages)
+        run: uv run hosting/kubernetes/helm/tests/test_runner_replica_identity.py
+
       # The gateway settings are documented with a values.yaml path per variable, and the
       # schema's root is additionalProperties:true, so a key the chart does not model is
       # accepted and ignored. This asserts each one reaches the containers that read it and
