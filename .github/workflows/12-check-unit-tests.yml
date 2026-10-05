@@ -876,6 +876,12 @@ jobs:
         if: github.event_name != 'workflow_dispatch' || contains(fromJSON('["all","services-only"]'), inputs.packages)
         run: uv run hosting/kubernetes/helm/tests/test_runner_replica_identity.py
 
+      # A local sandbox lives inside its runner pod, so the local provider keeps Recreate and one
+      # pod; remote-only runners roll with a surge pod and drain for the configured wait.
+      - name: Assert the runner rollout strategy, replica guard and shutdown wait
+        if: github.event_name != 'workflow_dispatch' || contains(fromJSON('["all","services-only"]'), inputs.packages)
+        run: uv run hosting/kubernetes/helm/tests/test_runner_rollout.py
+
       # The gateway settings are documented with a values.yaml path per variable, and the
       # schema's root is additionalProperties:true, so a key the chart does not model is
       # accepted and ignored. This asserts each one reaches the containers that read it and
